@@ -1,0 +1,161 @@
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <!--icon + and - --><link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://v4.bootcss.com/docs/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.js"></script>
+    <script src="https://v4.bootcss.com/docs/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Races</title>
+</head>
+<body>
+<div class="table-wrapper">
+    <div class="table-title">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2><b>Manage Race</b></h2>
+            </div>
+            <div class="col-sm-6">
+                <a id = "add" class="btn btn-success"><i class="material-icons"></i> <span>Add New Races</span></a>
+            </div>
+        </div>
+    </div>
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>
+                    <span class="custom-checkbox">
+                        <input type="checkbox" id="selectAll">
+                        <label for="selectAll"></label>
+                    </span>
+            </th>
+            <th>Race ID</th>
+            <th>Race believer</th>
+            <th>Race habit</th>
+            <th>population</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each list.data}}
+            <tr>
+                <td>
+                    <span class="custom-checkbox">
+                        <input type="checkbox" id="checkbox1" name="options[]" value="1">
+                        <label for="checkbox1"></label>
+                    </span>
+                </td>
+
+                <td>{{this.Race_id}}</td>
+                <td>{{this.Religion_believer}}</td>
+                <td>{{this.Race_habit}}</td>
+                <td>{{this.Race_population}}</td>
+                <td>
+                <a  class="edit" onclick="edit({{this.Race_id}})"><i class="material-icons" data-toggle="tooltip" title="" data-original-title="Edit"></i></a>
+                <a onclick="del({{this.Faction_id}})" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="" data-original-title="Delete"></i></a>
+            </td>
+            </tr>
+        {{/each}}
+
+    </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="detail" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Race</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" id="id">
+                    <div class="form-group">
+                        <label for="religionId">Religion</label>
+                        <select class="form-control" id="religionId" name="religionId">
+                            {{#each religions}}
+                                <option value="{{this.Religion_id}}">{{this.Religion_name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="raceHabit">Race habit</label>
+                        <input type="text" class="form-control" id="raceHabit" aria-describedby="emailHelp">
+                    </div>
+                    <div class="form-group">
+                        <label for="racePopulation">Religion population</label>
+                        <input type="number" class="form-control" id="racePopulation" aria-describedby="emailHelp">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="saveBtn" type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+<script>
+    var id;
+    function edit (_id) {
+        $.ajax({
+            method: 'get',
+            url: '/race/' + _id,
+            success: function (data) {
+                $('#religionId').val(data['Religion_id']);
+                $('#raceHabit').val(data['Race_habit']);
+                $('#racePopulation').val(data['Race_population']);
+                $('#id').val(data['Race_id']);
+                id = data['Race_id'];
+                $('#detail').modal('show');
+            }
+        });
+    }
+    function del (_id) {
+        $.ajax({
+            method: 'delete',
+            url: '/race/' + _id,
+            success: function (data) {
+                window.location.reload();
+            }
+        });
+    }
+    $(document).ready(function(){
+        $('#saveBtn').bind('click', function (e) {
+            save();
+        });
+        $('#add').bind('click', function (e) {
+            $('input').val(null);
+            id = undefined;
+            $('#detail').modal('show');
+        });
+        function save () {
+            const param = {
+                religionId: parseInt($('#religionId').val()),
+                raceHabit: $('#raceHabit').val(),
+                racePopulation: parseInt($('#racePopulation').val())
+            };
+            if (id) {
+                param['id'] = id;
+            }
+            $.ajax({
+                method: 'post',
+                url: '/race',
+                data: param,
+                success: function () {
+                    window.location.reload();
+                }
+            });
+        }
+    });
+
+</script>
+</html>
